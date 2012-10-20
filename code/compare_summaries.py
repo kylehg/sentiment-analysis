@@ -10,6 +10,8 @@ from xml.dom.minidom import parse
 
 from nltk.tokenize import sent_tokenize, word_tokenize
 
+from parse_mpqa import mpqa_data
+
 
 CORPUS_ROOT = '/project/cis/xtag2/DUC/DUC2001/data'
 DOCS_ROOT = join(CORPUS_ROOT, 'test/docs/test')
@@ -61,51 +63,54 @@ def get_doc_stats(words, emotion_words, sentiment_words):
   """Return a dictionaries of frequencies of different sentiment
   things in a document.
 
-  num_words: int
-  pos_strong: int
-  pos_weak: int
-  neg_strong: int
-  neg_weak: int
-  emotion_words: int
-  anger_words: int
-  disgust_words: int
-  feat_words: int
-  joy_words: int
-  sadness_words: int
-  surprise_words: int
+    word_count: int
+    sentiment:
+      count: int,
+      positive_count: int,
+      negative_count: int,
+      strongsubj_count: int,
+      weaksubj_count: int,
+      positive_weaksubj_count: int,
+      positive_strongsubj_count: int,
+      negative_weaksubj_count: int,
+      negative_strongsubj_count: int,
+    emotion:
+      count: int,
+      anger_count: int
+      disgust_count: int
+      feat_count: int
+      joy_count: int
+      sadness_count: int
+      surprise_count: int
   """
-  doc_data = defaultdict(lambda: 0)
-  for word in words:
+  doc_data = {
+    'word_count': 0,
+    'sentiment': defaultdict(lambda: 0),
+    'emotion': defaultdict(lambda: 0)
+    }
 
+  for word in words:
     # Sentiment
-    doc_data['num_words'] += 1
+    doc_data['word_count'] += 1
     try:
-      sentiment_info = sentiment_words[word]
-      if sentiment_info['val'] == 2:
-        doc_data['pos_strong'] += 1
-      elif sentiment_info['val'] == 1:
-        doc_data['pos_weak'] += 1
-      elif sentiment_info['val'] == -1:
-        doc_data['neg_weak'] += 1
-      elif sentiment_info['val'] == -2:
-        doc_data['neg_strong'] += 1
+      word_sentiment = sentiment_words[word]
+      strength = word_sentiment['type']
+      polarity = word_sentiment['priorpolarity']
+
+      sentiment_stats = doc_data['sentiment']
+      sentiment_stats['count'] += 1
+      sentiment_stats['%s_count' % polarity] += 1
+      sentiment_stats['%s_count' % strength] += 1
+      sentiment_stats['%s_%s_count' % (polariy, strength)] += 1
     except KeyError:
       pass
 
     # Emotion
-    if word in emotion_words['anger']:
-      doc_data['anger_words'] += 1
-    if word in emotion_words['disgust']:
-      doc_data['disgust_words'] += 1
-    if word in emotion_words['fear']:
-      doc_data['fear_words'] += 1
-    if word in emotion_words['joy']:
-      doc_data['joy_words'] += 1
-    if word in emotion_words['sadness']:
-      doc_data['sadness_words'] += 1
-    if word in emotion_words['surprise']:
-      doc_data['surprise_words'] += 1
-      
+    for emotion, emotion_word_set in emotion_words.iteritems():
+      if word in emotion_word_set:
+        doc_data['emotion']['count'] += 1
+        doc_data['emotion']['%s_count' % emotion] += 1
+        break
 
 
 def get_emotion_words(emotion, wordnet_path=WORDNET_ROOT):
@@ -128,4 +133,4 @@ def format_and_print_docset(docset):
 
 if __name__ == '__main__':
   pass
-  
+
