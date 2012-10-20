@@ -56,7 +56,7 @@ def get_summaries(root=SUMS_ROOT):
 
 def get_words(sents):
   """Return a list of word tokens from a list of sentence tokens."""
-  return [word for word in word_tokenize(sents)]
+  return [word for sent in sents for word in word_tokenize(sent)]
 
 
 def get_doc_stats(words, emotion_words, sentiment_words):
@@ -65,17 +65,17 @@ def get_doc_stats(words, emotion_words, sentiment_words):
 
     word_count: int
     sentiment:
-      count: int,
-      positive_count: int,
-      negative_count: int,
-      strongsubj_count: int,
-      weaksubj_count: int,
-      positive_weaksubj_count: int,
-      positive_strongsubj_count: int,
-      negative_weaksubj_count: int,
-      negative_strongsubj_count: int,
+      count: int
+      positive_count: int
+      negative_count: int
+      strongsubj_count: int
+      weaksubj_count: int
+      positive_weaksubj_count: int
+      positive_strongsubj_count: int
+      negative_weaksubj_count: int
+      negative_strongsubj_count: int
     emotion:
-      count: int,
+      count: int
       anger_count: int
       disgust_count: int
       feat_count: int
@@ -108,15 +108,19 @@ def get_doc_stats(words, emotion_words, sentiment_words):
     # Emotion
     for emotion, emotion_word_set in emotion_words.iteritems():
       if word in emotion_word_set:
+        print word, 'is', emotion
         doc_data['emotion']['count'] += 1
         doc_data['emotion']['%s_count' % emotion] += 1
         break
+
+  return doc_data
 
 
 def get_emotion_words(emotion, wordnet_path=WORDNET_ROOT):
   """Return a set of the words representing an emotion."""
   with open(join(wordnet_path, '%s.txt' % emotion)) as f:
-    return set(word for word in f.read().split() if not word[1] == '#')
+    return set(word.replace('_', ' ')
+               for word in f.read().split() if not word[1] == '#')
 
 
 
@@ -132,5 +136,11 @@ def format_and_print_docset(docset):
 
 
 if __name__ == '__main__':
-  pass
+  fp = '/project/cis/xtag2/DUC/DUC2001/data/test/docs/d12b/AP880903-0092'
+  emot_words = {emotion: get_emotion_words(emotion)
+                for emotion in ['anger', 'disgust', 'fear', 'joy', 'sadness',
+                                'surprise']}
+  sent_words = mpqa_data()
+  print get_doc_stats(get_words(get_doc_sents(fp)), emotion_words,
+                      sentiment_words)
 
