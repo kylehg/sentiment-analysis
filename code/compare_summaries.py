@@ -2,12 +2,13 @@
 Compare the human and machine summaries with the normal versions.
 Author: Kyle Hardgrave (kyleh@seas)
 """
-import re
 from collections import defaultdict
 from os import listdir
 from os.path import join, isdir
+from pprint import pprint
 from xml.dom.minidom import parse
 
+from BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
 from nltk.tokenize import sent_tokenize, word_tokenize
 
 from parse_mpqa import mpqa_data
@@ -28,30 +29,36 @@ def get_documents(root=DOCS_ROOT):
 
 def get_doc_sents(filepath):
   """Return a list of sentence tokens in a XML DUC file."""
-  dom = parse(filepath)
-  text = dom.getElementsByTagName('TEXT')[0].firstChild.data
-  # Only a single space between words.
-  text = ' '.join(text.split())
-  #headline = dom.getElementsByTagName('HEAD')[0].firstChild.data
-  #return (text, sent_tokenize(text))
-  return sent_tokenize(text)
+  try:
+    with open(filepath) as f:
+      soup = BeautifulStoneSoup(f.read())
+      tag = soup.findAll('text')[0].contents
+      text = ' '.join([content.string for content in tag
+                       if content.string is not None])
+      text = ' '.join(text.split()) # Only a single space between words.
+      return sent_tokenize(text)
+  except Exception:
+    print '**Trouble parsing doc', filepath
+    raise
 
 
-def get_summaries(root=SUMS_ROOT):
+def get_summary_sents(filepath):
+  """Return a list of sentence tokens from a HTML summary file.
+  Note: these aren't exactly real sentences, but we pretend they are."""
+  try:
+    with open(filepath) as f:
+      soup = BeautifulSoup(f.read())
+      tags = soup.body.findAll('a', href=True)
+      text = ' '.join([tag.string for tag in tags])
+      return sent_tokenize(text)
+  except Exception:
+    print '**Trouble parsing summary', filepath
+    raise
+
+
+def get_summaries(docset, root=SUMS_ROOT):
   """Get all the summaries."""
-  sums = {}
-  for doc in listdir(root):
-    docset, doctype = doc.split('.')[:2]
-    docset = docset.lower()
-    try:
-      doc_dict = sums[docset]
-    except KeyError:
-      doc_dict = sums[docset] = { 'multidoc': [], 'singledoc': [] }
-    if doctype == 'M':
-      doc_dict['multidoc'] += [doc]
-    else:
-      doc_dict['singledoc'] += [doc]
-  return sums
+  return [doc for doc in listdir(root) if doc.startswith(docset.upper())]
 
 
 def get_words(sents):
@@ -101,14 +108,13 @@ def get_doc_stats(words, emotion_words, sentiment_words):
       sentiment_stats['count'] += 1
       sentiment_stats['%s_count' % polarity] += 1
       sentiment_stats['%s_count' % strength] += 1
-      sentiment_stats['%s_%s_count' % (polariy, strength)] += 1
+      sentiment_stats['%s_%s_count' % (polarity, strength)] += 1
     except KeyError:
       pass
 
     # Emotion
     for emotion, emotion_word_set in emotion_words.iteritems():
       if word in emotion_word_set:
-        print word, 'is', emotion
         doc_data['emotion']['count'] += 1
         doc_data['emotion']['%s_count' % emotion] += 1
         break
@@ -123,7 +129,6 @@ def get_emotion_words(emotion, wordnet_path=WORDNET_ROOT):
                for word in f.read().split() if not word[1] == '#')
 
 
-
 def format_and_print_docset(docset):
   """Prepare a list of docs from a docset for annotating. Currently only
   inputs."""
@@ -135,12 +140,28 @@ def format_and_print_docset(docset):
         f.write(sent + '\n')
 
 
+
 if __name__ == '__main__':
-  fp = '/project/cis/xtag2/DUC/DUC2001/data/test/docs/d12b/AP880903-0092'
-  emot_words = {emotion: get_emotion_words(emotion)
-                for emotion in ['anger', 'disgust', 'fear', 'joy', 'sadness',
-                                'surprise']}
-  sent_words = mpqa_data()
-  print get_doc_stats(get_words(get_doc_sents(fp)), emotion_words,
-                      sentiment_words)
+  emotion_words = {emotion: get_emotion_words(emotion)
+                   for emotion in ['anger', 'disgust', 'fear', 'joy',
+                                   'sadness', 'surprise']}
+  sentiment_words = mpqa_data()
+
+  docsets = get_documents()
+  def get_docset_words(docset_id, docset_docs):
+    docset_path = join(DOCS_ROOT, docset_id)
+    return [word
+            for doc in docset_docs
+            for word in get_words(get_doc_sents(join(docset_path, doc)))]
+  doc_stats = [get_doc_stats(get_docset_words(docset_id, docset_docs),
+                             emotion_words, sentiment_words)
+              for docset_id, docset_docs in docsets.iteritems()]
+  pprint(doc_stats)
+
+#
+#              for docset_id in docsets.iterkeys()]
+#
+#  fp = '/project/cis/xtag2/DUC/DUC2001/data/test/docs/d12b/AP880903-0092'
+#  print get_doc_stats(get_words(get_doc_sents(fp)), emotion_words,
+#                      sentiment_words)
 
