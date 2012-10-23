@@ -23,8 +23,8 @@ WORDNET_ROOT = '/home1/k/kyleh/nlp/wordnet-affect-emotion-lists'
 
 def get_documents(root=DOCS_ROOT):
   """Return a map from topic id to documents."""
-  return { folder: [doc for doc in listdir(join(root, folder))]
-           for folder in listdir(root) if isdir(join(root, folder)) }
+  return sorted([(folder, [doc for doc in listdir(join(root, folder))])
+                 for folder in listdir(root) if isdir(join(root, folder))])
 
 
 def get_doc_sents(filepath):
@@ -49,7 +49,8 @@ def get_summary_sents(filepath):
     with open(filepath) as f:
       soup = BeautifulSoup(f.read())
       tags = soup.body.findAll('a', href=True)
-      text = ' '.join([tag.string for tag in tags])
+      text = ' '.join([tag.string for tag in tags
+                       if tag.string is not None])
       return sent_tokenize(text)
   except Exception:
     print '**Trouble parsing summary', filepath
@@ -58,7 +59,8 @@ def get_summary_sents(filepath):
 
 def get_summaries(docset, root=SUMS_ROOT):
   """Get all the summaries."""
-  return [doc for doc in listdir(root) if doc.startswith(docset.upper())]
+  return [join(root, doc)
+          for doc in listdir(root) if doc.startswith(docset.upper())]
 
 
 def get_words(sents):
@@ -140,24 +142,39 @@ def format_and_print_docset(docset):
         f.write(sent + '\n')
 
 
+def get_docset_words(docset_id, docset_docs):
+  docset_path = join(DOCS_ROOT, docset_id)
+  return [word
+          for doc in docset_docs
+          for word in get_words(get_doc_sents(join(docset_path, doc)))]
 
-if __name__ == '__main__':
+def get_summary_words(docset_id):
+  return [word
+          for summary_path in get_summaries(docset_id)
+          for word in get_words(get_summary_sents(summary_path))]
+
+def get_two_stats_vectors():
   emotion_words = {emotion: get_emotion_words(emotion)
                    for emotion in ['anger', 'disgust', 'fear', 'joy',
                                    'sadness', 'surprise']}
   sentiment_words = mpqa_data()
 
   docsets = get_documents()
-  def get_docset_words(docset_id, docset_docs):
-    docset_path = join(DOCS_ROOT, docset_id)
-    return [word
-            for doc in docset_docs
-            for word in get_words(get_doc_sents(join(docset_path, doc)))]
-  doc_stats = [get_doc_stats(get_docset_words(docset_id, docset_docs),
-                             emotion_words, sentiment_words)
-              for docset_id, docset_docs in docsets.iteritems()]
-  pprint(doc_stats)
+  doc_stats, summary_stats = [], []
+  
+  for docset_id, docset_docs in docsets:
+    doc_stats.append(get_doc_stats(get_docset_words(docset_id, docset_docs),
+                                   emotion_words, sentiment_words))
+    summary_stats.append(get_doc_stats(get_summary_words(docset_id[:-1]),
+                                       emotion_words, sentiment_words))
 
+  return doc_stats, summary_stats
+
+
+
+
+if __name__ == '__main__':
+  pass
 #
 #              for docset_id in docsets.iterkeys()]
 #
