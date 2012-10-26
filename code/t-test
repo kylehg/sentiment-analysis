@@ -1,0 +1,125 @@
+data:  sent_count_docs and sent_count_sums 
+t = -1.8232, df = 29, p-value = 0.0786
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -0.0072728697  0.0004175225 
+sample estimates:
+mean of the differences 
+           -0.003427674 
+-------------------------------------------------------------------------------
+data:  sent_neg_docs and sent_neg_sums 
+t = -5.6371, df = 29, p-value = 4.329e-06
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -0.008353774 -0.003905792 
+sample estimates:
+mean of the differences 
+           -0.006129783 
+-------------------------------------------------------------------------------
+data:  sent_neg_weak_docs and sent_neg_weak_sums 
+t = -5.6483, df = 29, p-value = 4.197e-06
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -0.005932204 -0.002778192 
+sample estimates:
+mean of the differences 
+           -0.004355198 
+-------------------------------------------------------------------------------
+data:  sent_neg_strong_docs and sent_neg_strong_sums 
+t = -2.9658, df = 29, p-value = 0.005988
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -0.002998358 -0.000550811 
+sample estimates:
+mean of the differences 
+           -0.001774585
+-------------------------------------------------------------------------------
+data:  sent_pos_docs and sent_pos_sums 
+t = 0.4085, df = 29, p-value = 0.6859
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -0.001601779  0.002401440 
+sample estimates:
+mean of the differences 
+           0.0003998304 
+-------------------------------------------------------------------------------
+data:  sent_pos_weak_docs and sent_pos_weak_sums 
+t = -0.9361, df = 29, p-value = 0.3569
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -0.002740520  0.001019498 
+sample estimates:
+mean of the differences 
+          -0.0008605113 
+-------------------------------------------------------------------------------
+data:  sent_pos_strong_docs and sent_pos_strong_sums 
+t = 2.2807, df = 29, p-value = 0.0301
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ 0.0001301109 0.0023905725 
+sample estimates:
+mean of the differences 
+            0.001260342
+-------------------------------------------------------------------------------
+data:  em_docs and em_sums 
+t = 0.4485, df = 29, p-value = 0.6571
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -0.0006956552  0.0010864561 
+sample estimates:
+mean of the differences 
+           0.0001954004 
+-------------------------------------------------------------------------------
+data:  anger_docs and anger_sums 
+t = -0.8744, df = 29, p-value = 0.3891
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -0.0004787908  0.0001920126 
+sample estimates:
+mean of the differences 
+          -0.0001433891
+-------------------------------------------------------------------------------
+data:  disgust_docs and disgust_sums 
+t = 1.4617, df = 29, p-value = 0.1546
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -2.131652e-05  1.281180e-04 
+sample estimates:
+mean of the differences 
+           5.340074e-05 
+-------------------------------------------------------------------------------
+data:  fear_docs and fear_sums 
+t = -1.7445, df = 29, p-value = 0.09166
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -5.806867e-04  4.607946e-05 
+sample estimates:
+mean of the differences 
+          -0.0002673036 
+-------------------------------------------------------------------------------
+data:  joy_docs and joy_sums 
+t = 0.8896, df = 29, p-value = 0.381
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -0.0002936204  0.0007456714 
+sample estimates:
+mean of the differences 
+           0.0002260255
+-------------------------------------------------------------------------------
+data:  sad_docs and sad_sums 
+t = -0.3906, df = 29, p-value = 0.6989
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -0.0004339120  0.0002947419 
+sample estimates:
+mean of the differences 
+          -6.958507e-05
+-------------------------------------------------------------------------------
+data:  surprise_count and surprise_sums 
+t = 3.6968, df = 29, p-value = 0.0009051
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ 0.0001770303 0.0006154737 
+sample estimates:
+mean of the differences 
+            0.000396252
