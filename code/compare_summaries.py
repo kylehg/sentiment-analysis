@@ -134,7 +134,7 @@ def get_emotion_words(emotion, wordnet_path=WORDNET_ROOT):
 def format_and_print_docset(docset):
   """Prepare a list of docs from a docset for annotating. Currently only
   inputs."""
-  docset_path = join(DOCS_ROOT, 'd12b')
+  docset_path = join(DOCS_ROOT, docset)
   for doc in listdir(docset_path):
     print "Writing %s" % doc
     with open('%s.txt' % doc, 'w') as f:
@@ -175,10 +175,3 @@ def get_two_stats_vectors():
 
 if __name__ == '__main__':
   pass
-#
-#              for docset_id in docsets.iterkeys()]
-#
-#  fp = '/project/cis/xtag2/DUC/DUC2001/data/test/docs/d12b/AP880903-0092'
-#  print get_doc_stats(get_words(get_doc_sents(fp)), emotion_words,
-#                      sentiment_words)
-
