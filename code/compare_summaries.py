@@ -174,4 +174,33 @@ def get_two_stats_vectors():
 
 
 if __name__ == '__main__':
-  pass
+  docs, summaries = get_two_stats_vectors()
+  
+  sentiment_args =  ['count', 'negative_count', 'negative_weaksubj_count',
+                     'negative_strongsubj_count', 'positive_count', 
+                     'positive_weaksubj_count', 'positive_strongsubj_count']
+  emotion_args = ['count', 'anger_count', 'disgust_count', 'fear_count',
+                  'joy_count', 'sadness_count', 'surprise_count']
+
+  # Sentiment
+  print '# Sentiment'
+  for sentiment_type in sentiment_args:
+    print sentiment_type
+    print 'Docs', [float(doc['sentiment'][sentiment_type]) / doc['word_count']
+                   for doc in docs]
+    print 'Summaries', [(float(summary['sentiment'][sentiment_type]) /
+                         summary['word_count'])
+                        for summary in summaries]
+    print
+  print
+
+  # Emotion
+  print '# Emotion'
+  for emotion_type in emotion_args:
+    print emotion_type
+    print 'Docs', [float(doc['emotion'][emotion_type]) / doc['word_count']
+                   for doc in docs]
+    print 'Summaries',  [(float(summary['emotion'][emotion_type]) /
+                          summary['word_count'])
+                         for summary in summaries]
+  print 'Done'
