@@ -1,3 +1,7 @@
+# 30 2001 sets
+# multidoc: split by docset
+
+
 data:  sent_count_docs and sent_count_sums 
 t = -1.8232, df = 29, p-value = 0.0786
 alternative hypothesis: true difference in means is not equal to 0 
