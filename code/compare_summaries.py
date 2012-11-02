@@ -96,6 +96,10 @@ def get_doc_stats(words, emotion_words, sentiment_words):
     'word_count': 0,
     'sentiment': defaultdict(lambda: 0),
     'emotion': defaultdict(lambda: 0)
+    'words': {
+      'emotion': defaultdict(lambda: set()),
+      'sentiment': defaultdict(lambda: set())
+      }
     }
 
   for word in words:
@@ -111,6 +115,8 @@ def get_doc_stats(words, emotion_words, sentiment_words):
       sentiment_stats['%s_count' % polarity] += 1
       sentiment_stats['%s_count' % strength] += 1
       sentiment_stats['%s_%s_count' % (polarity, strength)] += 1
+
+      doc_data['words']['sentiment'].add(word)
     except KeyError:
       pass
 
@@ -119,6 +125,7 @@ def get_doc_stats(words, emotion_words, sentiment_words):
       if word in emotion_word_set:
         doc_data['emotion']['count'] += 1
         doc_data['emotion']['%s_count' % emotion] += 1
+        doc_data['words']['emotion'].add(word)
         break
 
   return doc_data
