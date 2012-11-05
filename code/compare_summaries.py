@@ -14,15 +14,21 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from parse_mpqa import mpqa_data
 
 
-CORPUS_ROOT = '/project/cis/xtag2/DUC/DUC2001/data'
-DOCS_ROOT = join(CORPUS_ROOT, 'test/docs/test')
-SUMS_ROOT = join(CORPUS_ROOT, 'eval/see.models')
 WORDNET_ROOT = '/home1/k/kyleh/nlp/wordnet-affect-emotion-lists'
+PROJECT_ROOT = '/project/cis/xtag2/DUC'
 
+CORPUS_ROOT01 = join(PROJECT_ROOT, 'DUC2001/data')
+DOCS_ROOT01 = join(CORPUS_ROOT01, 'test/docs/test')
+SUMS_ROOT01 = join(CORPUS_ROOT01, 'eval/see.models')
 
+CORPUS_ROOT02 = join(PROJECT_ROOT, 'DUC2002')
+DOCS_ROOT02 = join(CORPUS_ROOT02, 'data/test/docs/docs')
+SUMS_ROOT02 = join(CORPUS_ROOT02, ('results/abstracts/phase1/SEEmodels'
+                                   '/SEE.edited.abstracts.in.edus'))
 
-def get_documents(root=DOCS_ROOT):
-  """Return a map from topic id to documents."""
+def get_documents(root):
+  """Return a list of (docset_id, docset_docs) tuples, where 
+  docset_docs is a list of the document names in the given docset."""
   return sorted([(folder, [doc for doc in listdir(join(root, folder))])
                  for folder in listdir(root) if isdir(join(root, folder))])
 
@@ -42,6 +48,12 @@ def get_doc_sents(filepath):
     raise
 
 
+def get_summaries(docset, root):
+  """Get all the summaries for a given docset."""
+  return sorted([doc for doc in listdir(root)
+                 if doc.startswith(docset.upper())])
+
+
 def get_summary_sents(filepath):
   """Return a list of sentence tokens from a HTML summary file.
   Note: these aren't exactly real sentences, but we pretend they are."""
@@ -55,12 +67,6 @@ def get_summary_sents(filepath):
   except Exception:
     print '**Trouble parsing summary', filepath
     raise
-
-
-def get_summaries(docset, root=SUMS_ROOT):
-  """Get all the summaries."""
-  return [join(root, doc)
-          for doc in listdir(root) if doc.startswith(docset.upper())]
 
 
 def get_words(sents):
@@ -95,11 +101,8 @@ def get_doc_stats(words, emotion_words, sentiment_words):
   doc_data = {
     'word_count': 0,
     'sentiment': defaultdict(lambda: 0),
-    'emotion': defaultdict(lambda: 0)
-    'words': {
-      'emotion': defaultdict(lambda: set()),
-      'sentiment': defaultdict(lambda: set())
-      }
+    'emotion': defaultdict(lambda: 0),
+    'words': defaultdict(lambda: set())
     }
 
   for word in words:
@@ -138,10 +141,10 @@ def get_emotion_words(emotion, wordnet_path=WORDNET_ROOT):
                for word in f.read().split() if not word[1] == '#')
 
 
-def format_and_print_docset(docset):
+def format_and_print_docset(docset_root, docset):
   """Prepare a list of docs from a docset for annotating. Currently only
   inputs."""
-  docset_path = join(DOCS_ROOT, docset)
+  docset_path = join(docset_root, docset)
   for doc in listdir(docset_path):
     print "Writing %s" % doc
     with open('%s.txt' % doc, 'w') as f:
@@ -149,31 +152,38 @@ def format_and_print_docset(docset):
         f.write(sent + '\n')
 
 
-def get_docset_words(docset_id, docset_docs):
-  docset_path = join(DOCS_ROOT, docset_id)
+def get_docset_words(docset_id, docset_docs, docset_root):
+  docset_path = join(docset_root, docset_id)
   return [word
           for doc in docset_docs
           for word in get_words(get_doc_sents(join(docset_path, doc)))]
 
-def get_summary_words(docset_id):
+
+def get_summary_words(docset_id, sums_root):
+  """Return the tokenized words for summaries in a given docset."""
   return [word
-          for summary_path in get_summaries(docset_id)
-          for word in get_words(get_summary_sents(summary_path))]
+          for summary in get_summaries(docset_id, sums_root)
+          for word in get_words(get_summary_sents(join(sums_root, summary)))]
 
-def get_two_stats_vectors():
+
+def get_two_stats_vectors(roots):
   emotion_words = {emotion: get_emotion_words(emotion)
-                   for emotion in ['anger', 'disgust', 'fear', 'joy',
-                                   'sadness', 'surprise']}
+                     for emotion in ['anger', 'disgust', 'fear', 'joy',
+                                     'sadness', 'surprise']}
   sentiment_words = mpqa_data()
-
-  docsets = get_documents()
   doc_stats, summary_stats = [], []
-  
-  for docset_id, docset_docs in docsets:
-    doc_stats.append(get_doc_stats(get_docset_words(docset_id, docset_docs),
-                                   emotion_words, sentiment_words))
-    summary_stats.append(get_doc_stats(get_summary_words(docset_id[:-1]),
-                                       emotion_words, sentiment_words))
+  for docs_root, sums_root in roots:
+    docsets = get_documents(docs_root)
+
+    for docset_id, docset_docs in docsets:
+      doc_vector = get_doc_stats(
+        get_docset_words(docset_id, docset_docs, docs_root),
+        emotion_words, sentiment_words)
+      summary_vector = get_doc_stats(
+        get_summary_words(docset_id[:-1], sums_root), emotion_words,
+        sentiment_words)
+      summary_stats.append(summary_vector)
+
 
   return doc_stats, summary_stats
 
@@ -181,10 +191,11 @@ def get_two_stats_vectors():
 
 
 if __name__ == '__main__':
-  docs, summaries = get_two_stats_vectors()
-  
+  docs, summaries = get_two_stats_vectors([(DOCS_ROOT01, SUMS_ROOT01),
+                                           (DOCS_ROOT02, SUMS_ROOT02)])
+
   sentiment_args =  ['count', 'negative_count', 'negative_weaksubj_count',
-                     'negative_strongsubj_count', 'positive_count', 
+                     'negative_strongsubj_count', 'positive_count',
                      'positive_weaksubj_count', 'positive_strongsubj_count']
   emotion_args = ['count', 'anger_count', 'disgust_count', 'fear_count',
                   'joy_count', 'sadness_count', 'surprise_count']
