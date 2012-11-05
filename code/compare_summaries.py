@@ -26,6 +26,15 @@ DOCS_ROOT02 = join(CORPUS_ROOT02, 'data/test/docs/docs')
 SUMS_ROOT02 = join(CORPUS_ROOT02, ('results/abstracts/phase1/SEEmodels'
                                    '/SEE.edited.abstracts.in.edus'))
 
+CORPUS_ROOT03 = join(PROJECT_ROOT, 'DUC2003')
+DOCS_ROOT03 = '' #TODO
+SUMS_ROOT03 = join(CORPUS_ROOT03, ('results/SEE.duc2003.abstracts/models')
+
+CORPUS_ROOT04 = join(PROJECT_ROOT, 'DUC2004')
+DOCS_ROOT04 = '' #TODO
+SUMS_ROOT04 = join(CORPUS_ROOT04, ('results/ROUGE/eval/models/2'))
+
+
 def get_documents(root):
   """Return a list of (docset_id, docset_docs) tuples, where 
   docset_docs is a list of the document names in the given docset."""
