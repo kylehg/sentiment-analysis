@@ -173,7 +173,7 @@ def get_doc_stats(words, emotion_words, sentiment_words):
       sentiment_stats['count'] += 1
 
       # A word may have multiple sentiments
-      for strength, polarity in word_sentiments:
+      for strength, polarity in word_sentiments[1:]:
         sentiment_stats = doc_data['sentiment']
         sentiment_stats['%s_count' % polarity] += 1
         sentiment_stats['%s_count' % strength] += 1
