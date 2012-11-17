@@ -6,19 +6,38 @@ import os
 
 
 
-MPQA_LEXICON = ('/project/cis/nlp/data/corpora/mpqa-lexicon/'
+LEXICON_ROOT = ('/project/cis/nlp/data/corpora/mpqa-lexicon/'
                 'subjclueslen1-HLTEMNLP05.tff')
+# The MPQA tokens for a word's polarity
+POL_TOK = {
+  'pos' = 'positive',
+  'neg' = 'negative',
+  'neut' = 'neutral',
+  'both' = 'both',
+  }
+
+# The MPQA tokens for a word's sentiment type (strength)
+TYPE_TOK = {
+  'strong' = 'strongsubj',
+  'weak' = 'weaksubj',
+  }
 
 
-def mpqa_data(from_file=MPQA_LEXICON):
-  """Parse the MPQA data into a Python dictionary from a word to its
-  associate data."""
-  result_dict = {}
-  with open(from_file, 'r') as f:
+def mpqa_data(from_file=LEXICON_ROOT):
+  """Return a dictionary from words to list of tuples of
+  (word_type, sentiment).
+
+  >>> get_mpqa_lexicon()['best']
+  [('strongsubj', 'positive')]
+  >>> get_mpqa_lexicon()['mean']
+  [('strongsubj', 'negative'), ('weaksubj', 'neutral')]
+  """
+  results = defaultdict(list)
+  with open(lexicon_path, 'r') as f:
     for line in f:
       data = parse_line(line)
-      result_dict[data['word1']] = data
-  return result_dict
+      results[data['word1']].append((data['type'], data['priorpolarity']))
+  return results
 
 
 def parse_line(line):
