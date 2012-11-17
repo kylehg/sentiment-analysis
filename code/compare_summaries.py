@@ -13,7 +13,7 @@ from BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
 from nltk.tokenize import sent_tokenize, word_tokenize
 
 from duc_utils import make_r_vector, get_documents
-from parse_mpqa import mpqa_data
+from mpqa import mpqa_data
 
 PROJECT_ROOT = '/project/cis/xtag2/DUC'
 CORPUS_ROOT01 = join(PROJECT_ROOT, 'DUC2001/data')
@@ -53,7 +53,7 @@ def make_r_vector(vector, name=None):
 
 
 def get_documents(root):
-  """Return a list of (docset_id, docset_docs) tuples, where 
+  """Return a list of (docset_id, docset_docs) tuples, where
   docset_docs is a list of the document names in the given docset."""
   return sorted([(folder, [doc for doc in listdir(join(root, folder))])
                  for folder in listdir(root) if isdir(join(root, folder))])
@@ -160,22 +160,25 @@ def get_doc_stats(words, emotion_words, sentiment_words):
     }
 
   for word in words:
-    # Sentiment
     doc_data['word_count'] += 1
+
+    # Sentiment
     try:
-      word_sentiment = sentiment_words[word]
-      strength = word_sentiment['type']
-      polarity = word_sentiment['priorpolarity']
-
-      sentiment_stats = doc_data['sentiment']
-      sentiment_stats['count'] += 1
-      sentiment_stats['%s_count' % polarity] += 1
-      sentiment_stats['%s_count' % strength] += 1
-      sentiment_stats['%s_%s_count' % (polarity, strength)] += 1
-
-      doc_data['words']['sentiment'].add(word)
+      word_sentiments = sentiment_words[word]
     except KeyError:
       pass
+    else:
+      # Add the word and count it only once
+      doc_data['words']['sentiment'].add(word)
+      sentiment_stats['count'] += 1
+
+      # A word may have multiple sentiments
+      for strength, polarity in word_sentiments:
+        sentiment_stats = doc_data['sentiment']
+        sentiment_stats['%s_count' % polarity] += 1
+        sentiment_stats['%s_count' % strength] += 1
+        sentiment_stats['%s_%s_count' % (polarity, strength)] += 1
+
 
     # Emotion
     for emotion, emotion_word_set in emotion_words.iteritems():
