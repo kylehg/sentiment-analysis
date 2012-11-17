@@ -1,3 +1,4 @@
+
 # 30 2001 sets
 # multidoc: split by docset
 
@@ -10,6 +11,7 @@ alternative hypothesis: true difference in means is not equal to 0
 sample estimates:
 mean of the differences 
            -0.003427674 
+
 -------------------------------------------------------------------------------
 data:  sent_neg_docs and sent_neg_sums 
 t = -5.6371, df = 29, p-value = 4.329e-06

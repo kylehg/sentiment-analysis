@@ -2,6 +2,7 @@
 Compare the human and machine summaries with the normal versions.
 Author: Kyle Hardgrave (kyleh@seas)
 """
+import traceback
 from collections import defaultdict
 from os import listdir
 from os.path import join, isdir
@@ -11,28 +12,44 @@ from xml.dom.minidom import parse
 from BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
 from nltk.tokenize import sent_tokenize, word_tokenize
 
+from duc_utils import make_r_vector, get_documents
 from parse_mpqa import mpqa_data
 
-
-WORDNET_ROOT = '/home1/k/kyleh/nlp/wordnet-affect-emotion-lists'
 PROJECT_ROOT = '/project/cis/xtag2/DUC'
-
 CORPUS_ROOT01 = join(PROJECT_ROOT, 'DUC2001/data')
-DOCS_ROOT01 = join(CORPUS_ROOT01, 'test/docs/test')
-SUMS_ROOT01 = join(CORPUS_ROOT01, 'eval/see.models')
-
 CORPUS_ROOT02 = join(PROJECT_ROOT, 'DUC2002')
-DOCS_ROOT02 = join(CORPUS_ROOT02, 'data/test/docs/docs')
-SUMS_ROOT02 = join(CORPUS_ROOT02, ('results/abstracts/phase1/SEEmodels'
-                                   '/SEE.edited.abstracts.in.edus'))
-
 CORPUS_ROOT03 = join(PROJECT_ROOT, 'DUC2003')
-DOCS_ROOT03 = '' #TODO
-SUMS_ROOT03 = join(CORPUS_ROOT03, ('results/SEE.duc2003.abstracts/models')
-
 CORPUS_ROOT04 = join(PROJECT_ROOT, 'DUC2004')
-DOCS_ROOT04 = '' #TODO
-SUMS_ROOT04 = join(CORPUS_ROOT04, ('results/ROUGE/eval/models/2'))
+
+DUC = {
+  '01': {
+    'docs': join(CORPUS_ROOT01, 'test/docs/test'),
+    'sums': join(CORPUS_ROOT01, 'DUC2001/data', 'eval/see.models')
+    },
+  '02': {
+    'docs': join(CORPUS_ROOT02, 'data/test/docs/docs'),
+    'sums': join(CORPUS_ROOT02, ('results/abstracts/phase1/SEEmodels'
+                                 '/SEE.edited.abstracts.in.edus'))
+    },
+  '03': {
+    'docs': join(CORPUS_ROOT03, 'testdata/task4/docs'),
+    'sums': join(CORPUS_ROOT03, 'results/SEE.duc2003.abstracts/models')
+    },
+  '04': {
+    'docs': join(CORPUS_ROOT04, 'testdata/tasks1and2/t1.2/docs'),
+    'sums': join(CORPUS_ROOT04, 'results/ROUGE/eval/models/2')
+    }
+  }
+
+
+def make_r_vector(vector, name=None):
+  """Given an iterable and an optional name, return a string that
+  can be used as a vector in R."""
+  csv = ', '.join(vector)
+  if name:
+    return '%s <- c(%s)' % (name, csv)
+  else:
+    return 'c(%s)' % csv
 
 
 def get_documents(root):
@@ -54,7 +71,9 @@ def get_doc_sents(filepath):
       return sent_tokenize(text)
   except Exception:
     print '**Trouble parsing doc', filepath
-    raise
+    print traceback.format_exc()
+    return []
+
 
 
 def get_summaries(docset, root):
@@ -75,7 +94,33 @@ def get_summary_sents(filepath):
       return sent_tokenize(text)
   except Exception:
     print '**Trouble parsing summary', filepath
-    raise
+    print traceback.format_exc()
+    return []
+
+
+def format_and_print_docset(docset_root, docset):
+  """Prepare a list of docs from a docset for annotating. Currently only
+  inputs."""
+  docset_path = join(docset_root, docset)
+  for doc in listdir(docset_path):
+    print "Writing %s" % doc
+    with open('%s.txt' % doc, 'w') as f:
+      for sent in get_doc_sents(join(docset_path, doc)):
+        f.write(sent + '\n')
+
+
+def get_docset_words(docset_id, docset_docs, docset_root):
+  docset_path = join(docset_root, docset_id)
+  return [word
+          for doc in docset_docs
+          for word in get_words(get_doc_sents(join(docset_path, doc)))]
+
+
+def get_summary_words(docset_id, sums_root):
+  """Return the tokenized words for summaries in a given docset."""
+  return [word
+          for summary in get_summaries(docset_id, sums_root)
+          for word in get_words(get_summary_sents(join(sums_root, summary)))]
 
 
 def get_words(sents):
@@ -143,38 +188,6 @@ def get_doc_stats(words, emotion_words, sentiment_words):
   return doc_data
 
 
-def get_emotion_words(emotion, wordnet_path=WORDNET_ROOT):
-  """Return a set of the words representing an emotion."""
-  with open(join(wordnet_path, '%s.txt' % emotion)) as f:
-    return set(word.replace('_', ' ')
-               for word in f.read().split() if not word[1] == '#')
-
-
-def format_and_print_docset(docset_root, docset):
-  """Prepare a list of docs from a docset for annotating. Currently only
-  inputs."""
-  docset_path = join(docset_root, docset)
-  for doc in listdir(docset_path):
-    print "Writing %s" % doc
-    with open('%s.txt' % doc, 'w') as f:
-      for sent in get_doc_sents(join(docset_path, doc)):
-        f.write(sent + '\n')
-
-
-def get_docset_words(docset_id, docset_docs, docset_root):
-  docset_path = join(docset_root, docset_id)
-  return [word
-          for doc in docset_docs
-          for word in get_words(get_doc_sents(join(docset_path, doc)))]
-
-
-def get_summary_words(docset_id, sums_root):
-  """Return the tokenized words for summaries in a given docset."""
-  return [word
-          for summary in get_summaries(docset_id, sums_root)
-          for word in get_words(get_summary_sents(join(sums_root, summary)))]
-
-
 def get_two_stats_vectors(roots):
   emotion_words = {emotion: get_emotion_words(emotion)
                      for emotion in ['anger', 'disgust', 'fear', 'joy',
@@ -188,6 +201,7 @@ def get_two_stats_vectors(roots):
       doc_vector = get_doc_stats(
         get_docset_words(docset_id, docset_docs, docs_root),
         emotion_words, sentiment_words)
+      doc_stats.append(doc_vector)
       summary_vector = get_doc_stats(
         get_summary_words(docset_id[:-1], sums_root), emotion_words,
         sentiment_words)
@@ -200,8 +214,9 @@ def get_two_stats_vectors(roots):
 
 
 if __name__ == '__main__':
-  docs, summaries = get_two_stats_vectors([(DOCS_ROOT01, SUMS_ROOT01),
-                                           (DOCS_ROOT02, SUMS_ROOT02)])
+  docs, summaries = get_two_stats_vectors([(DOCS_ROOT01, SUMS_ROOT01)])
+#                                           (DOCS_ROOT02, SUMS_ROOT02),
+#                                           (DOCS_ROOT03, SUMS_ROOT03)])
 
   sentiment_args =  ['count', 'negative_count', 'negative_weaksubj_count',
                      'negative_strongsubj_count', 'positive_count',

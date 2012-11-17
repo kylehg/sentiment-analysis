@@ -1,0 +1,94 @@
+data:  sent_doc_count and sent_sum_count 
+t = 0.7075, df = 118, p-value = 0.4806
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -0.001896639  0.004005443 
+sample estimates:
+mean of the differences 
+            0.001054402 
+
+-------------------------------------------------------------------------------
+***
+data:  neg_doc and neg_sum 
+t = -6.5007, df = 118, p-value = 2.002e-09
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -0.007285427 -0.003883189 
+sample estimates:
+mean of the differences 
+           -0.005584308
+
+-------------------------------------------------------------------------------
+***
+data:  neg_weak_doc and neg_weak_sum 
+t = -7.624, df = 118, p-value = 6.859e-12
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -0.006542752 -0.003844698 
+sample estimates:
+mean of the differences 
+           -0.005193725 
+
+-------------------------------------------------------------------------------
+data:  neg_strong_doc and neg_strong_sum 
+t = -1.033, df = 118, p-value = 0.3037
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -0.0011393136  0.0003581488 
+sample estimates:
+mean of the differences 
+          -0.0003905824 
+
+-------------------------------------------------------------------------------
+***
+data:  pos_d and pos_s 
+t = 3.61, df = 118, p-value = 0.0004506
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ 0.001265261 0.004340100 
+sample estimates:
+mean of the differences 
+             0.00280268 
+
+-------------------------------------------------------------------------------
+data:  pos_w_d and pos_w_s 
+t = 0.915, df = 118, p-value = 0.362
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -0.0006653809  0.0018085218 
+sample estimates:
+mean of the differences 
+           0.0005715705 
+
+-------------------------------------------------------------------------------
+***
+data:  possd and posss 
+t = 6.1822, df = 118, p-value = 9.354e-09
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ 0.001516439 0.002945781 
+sample estimates:
+mean of the differences 
+             0.00223111 
+
+-------------------------------------------------------------------------------
+***
+data:  surprised and surprises 
+t = 4.3324, df = 118, p-value = 3.116e-05
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ 0.0001585901 0.0004256234 
+sample estimates:
+mean of the differences 
+           0.0002921067
+
+-------------------------------------------------------------------------------
+data:  feard and fears 
+t = 0.401, df = 118, p-value = 0.6891
+alternative hypothesis: true difference in means is not equal to 0 
+95 percent confidence interval:
+ -0.0000857009  0.0001292254 
+sample estimates:
+mean of the differences 
+           2.176227e-05 
+	
