@@ -2,6 +2,7 @@
 Some utilities for the MPQA subjectivity clues lexicon.
 Author: Kyle Hardgrave (kyleh@seas)
 """
+
 import os
 from collections import namedtuple, defaultdict
 
@@ -34,9 +35,10 @@ TYPE_TOKS = {
 MpqaWord = namedtuple('MpqaWord', ['word', 'strength', 'polarity'])
 
 
-def mpqa_data(lexicon_file=LEXICON_FILE):
+def get_word_sentiment_map(lexicon_file=LEXICON_FILE):
   """Return a dictionary from words to list of MpqaWord named tuples.
 
+  TODO: Fix doctest
   >> get_mpqa_lexicon()['best']
   [('strongsubj', 'positive')]
   >> get_mpqa_lexicon()['mean']

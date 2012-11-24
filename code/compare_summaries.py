@@ -2,18 +2,18 @@
 Compare the human and machine summaries with the normal versions.
 Author: Kyle Hardgrave (kyleh@seas)
 """
+
 import traceback
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from os import listdir
 from os.path import join, isdir
-from pprint import pprint
-from xml.dom.minidom import parse
 
 from BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
 from nltk.tokenize import sent_tokenize, word_tokenize
 
-from duc_utils import make_r_vector, get_documents
-from mpqa import mpqa_data
+import mpqa
+import r_utils
+import wordnet
 
 PROJECT_ROOT = '/project/cis/xtag2/DUC'
 CORPUS_ROOT01 = join(PROJECT_ROOT, 'DUC2001/data')
@@ -24,7 +24,7 @@ CORPUS_ROOT04 = join(PROJECT_ROOT, 'DUC2004')
 DUC = {
   '01': {
     'docs': join(CORPUS_ROOT01, 'test/docs/test'),
-    'sums': join(CORPUS_ROOT01, 'DUC2001/data', 'eval/see.models')
+    'sums': join(CORPUS_ROOT01, 'eval/see.models')
     },
   '02': {
     'docs': join(CORPUS_ROOT02, 'data/test/docs/docs'),
@@ -41,15 +41,8 @@ DUC = {
     }
   }
 
-
-def make_r_vector(vector, name=None):
-  """Given an iterable and an optional name, return a string that
-  can be used as a vector in R."""
-  csv = ', '.join(vector)
-  if name:
-    return '%s <- c(%s)' % (name, csv)
-  else:
-    return 'c(%s)' % csv
+DucCorpus = namedtuple('DucCorpus', ['doc_path', 'sum_path'])
+DocSet = namedtuple('DocSet', ['docs'
 
 
 def get_documents(root):
@@ -192,10 +185,10 @@ def get_doc_stats(words, emotion_words, sentiment_words):
 
 
 def get_two_stats_vectors(roots):
-  emotion_words = {emotion: get_emotion_words(emotion)
+  emotion_words = {emotion: wordnet.get_word_emotion_map()
                      for emotion in ['anger', 'disgust', 'fear', 'joy',
                                      'sadness', 'surprise']}
-  sentiment_words = mpqa_data()
+  sentiment_words = mpqa.get_word_sentiment_map()
   doc_stats, summary_stats = [], []
   for docs_root, sums_root in roots:
     docsets = get_documents(docs_root)
