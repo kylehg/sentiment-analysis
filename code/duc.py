@@ -47,7 +47,8 @@ def make_docset(corpus, docset_id):
 
 def get_docsets(corpus):
   """Given a DucCorpus, return an ordered list of DocSets."""
-  raise NotImplementedError
+  return sorted([make_docset(corpus, docset_id)
+                 for docset_id in listdir(corpus.doc_path)])
 
 
 def get_doc_words(doc_path):
@@ -90,3 +91,8 @@ def get_docset_sum_words(docset):
   """Given a DocSet, return a list of words in that docset's summaries."""
   raise NotImplementedError
 
+
+
+if __name__ == '__main__':
+  import doctest
+  doctest.testfile('test_duc.txt')
