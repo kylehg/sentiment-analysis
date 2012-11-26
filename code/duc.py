@@ -27,10 +27,22 @@ DucCorpus = namedtuple('DucCorpus', ['year', 'doc_path', 'sum_path'])
 DocSet = namedtuple('DocSet', ['id', 'docs', 'sums'])
 
 
+def make_duccorpus(year, project_root, docs_dir, sums_dir):
+  """Make a DucCorpus given a project root, year, and paths to the
+  documents and summaries."""
+  root = join(project_root, 'DUC%s' % year)
+  return DucCorpus(year, join(root, docs_dir), join(root, sums_dir))
+
+
 def make_docset(corpus, docset_id):
   """Given a DucCorpus and a docset_id string, return the
   corresponding DocSet."""
-  raise NotImplementedError
+  docs = [join(corpus.doc_path, docset_id, doc)
+          for doc in listdir(join(corpus.doc_path, docset_id))]
+  sums = [join(corpus.sum_path, summary)
+          for summary in listdir(corpus.sum_path)
+          if summary.startswith(docset_id[:-1].upper())]
+  return DocSet(docset_id, sorted(docs), sorted(sums))
 
 
 def get_docsets(corpus):
@@ -49,7 +61,7 @@ def get_doc_words(doc_path):
       return get_words(normalize_whitespace(text))
   except Exception:
     print '**Trouble parsing doc', filepath
-    raise  pass
+    raise
 
 
 def get_sum_words(sum_path):

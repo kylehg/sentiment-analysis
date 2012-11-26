@@ -11,38 +11,21 @@ from os.path import join, isdir
 from BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
 from nltk.tokenize import sent_tokenize, word_tokenize
 
+import duc
 import mpqa
 import r_utils
 import wordnet
 
 PROJECT_ROOT = '/project/cis/xtag2/DUC'
-CORPUS_ROOT01 = join(PROJECT_ROOT, 'DUC2001/data')
-CORPUS_ROOT02 = join(PROJECT_ROOT, 'DUC2002')
-CORPUS_ROOT03 = join(PROJECT_ROOT, 'DUC2003')
-CORPUS_ROOT04 = join(PROJECT_ROOT, 'DUC2004')
-
-DUC = {
-  '01': {
-    'docs': join(CORPUS_ROOT01, 'test/docs/test'),
-    'sums': join(CORPUS_ROOT01, 'eval/see.models')
-    },
-  '02': {
-    'docs': join(CORPUS_ROOT02, 'data/test/docs/docs'),
-    'sums': join(CORPUS_ROOT02, ('results/abstracts/phase1/SEEmodels'
-                                 '/SEE.edited.abstracts.in.edus'))
-    },
-  '03': {
-    'docs': join(CORPUS_ROOT03, 'testdata/task4/docs'),
-    'sums': join(CORPUS_ROOT03, 'results/SEE.duc2003.abstracts/models')
-    },
-  '04': {
-    'docs': join(CORPUS_ROOT04, 'testdata/tasks1and2/t1.2/docs'),
-    'sums': join(CORPUS_ROOT04, 'results/ROUGE/eval/models/2')
-    }
-  }
-
-DucCorpus = namedtuple('DucCorpus', ['doc_path', 'sum_path'])
-DocSet = namedtuple('DocSet', ['docs'
+DUC2001 = make_duccorpus('2001', PROJECT_ROOT, 'data/test/docs/test',
+                         'data/eval/see.models')
+DUC2002 = make_duccorpus('2002', PROJECT_ROOT, 'data/test/docs/docs', 
+                         ('results/abstracts/phase1/SEEmodels/'
+                          'SEE.edited.abstracts.in.edus'))
+DUC2003 = make_duccorpus('2003', PROJECT_ROOT, 'testdata/task4/docs', 
+                         'results/SEE.duc2003.abstracts/models')
+DUC2004 = make_duccorpus('2004', PROJECT_ROOT, 'testdata/tasks1and2/t1.2/docs',
+                         'results/ROUGE/eval/models/2')
 
 
 def get_documents(root):
