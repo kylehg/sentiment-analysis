@@ -30,7 +30,7 @@ DocSet = namedtuple('DocSet', ['id', 'docs', 'sums'])
 def make_duccorpus(year, project_root, docs_dir, sums_dir):
   """Make a DucCorpus given a project root, year, and paths to the
   documents and summaries."""
-  root = join(project_root, 'DUC%s' % year)
+  root = join(project_root, 'DUC' + year)
   return DucCorpus(year, join(root, docs_dir), join(root, sums_dir))
 
 
@@ -51,6 +51,14 @@ def get_docsets(corpus):
                  for docset_id in listdir(corpus.doc_path)])
 
 
+def get_doc_sums(docset, doc_id, multidoc=False):
+  """Given a docset and a document id, return a list of the full paths
+  of its corresponding summaries (possibly including multidocs)."""
+  return sorted([sumary for summary in docset.sums
+                 if ((basename(summary) == doc_id + '.html') or
+                     (multidoc and basename(summary).split('.')[1] == 'M'))])
+
+
 def get_doc_words(doc_path):
   """Given a document file path, return a list of words in that document."""
   try:
@@ -67,28 +75,6 @@ def get_doc_words(doc_path):
 
 def get_sum_words(sum_path):
   """Given a summary file path, return a list of words in that summary."""
-  raise NotImplementedError
-
-
-def get_doc_sums(doc_id):
-  """Given a document id, return a list of the full paths of its 
-  corresponding summaries."""
-  raise NotImplementedError
-
-
-def get_doc_sums_words(doc_id):
-  """Given a document id, return a list of the tokenized words in its
-  corresponding summaries."""
-  raise NotImplementedError
-
-
-def get_docset_doc_words(docset):
-  """Given a DocSet, return a list of words in that docset's docs."""
-  raise NotImplementedError
-
-
-def get_docset_sum_words(docset):
-  """Given a DocSet, return a list of words in that docset's summaries."""
   raise NotImplementedError
 
 
