@@ -5,7 +5,7 @@ Author: Kyle Hardgrave (kyleh@seas)
 import os
 from collections import defaultdict
 
-WORDNET_ROOT = '/home1/k/kyleh/nlp/wordnet-affect-emotion-lists'
+WORDNET_ROOT = '/home1/k/kyleh/nlp/lexicons/wordnet'
 WORDNET_EMOTIONS = ['anger', 'disgust', 'fear', 'joy', 'sadness', 'surprise']
 
 
